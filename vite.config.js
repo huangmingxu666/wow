@@ -4,13 +4,11 @@ import { resolve } from 'path';
 export default defineConfig({
   build: {
     rollupOptions: {
-      input: {
-        main: resolve(__dirname, 'index.js'),  // 只保留 index.js
-      },
+      input: resolve(__dirname, 'background.js'),
       output: {
-        entryFileNames: '[name].js',
+        entryFileNames: 'background.js',
         format: 'iife',
-        name: 'FUExtension',
+        name: 'FUBackground',
       },
     },
     outDir: 'dist',
