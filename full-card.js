@@ -1,40 +1,65 @@
 import OBR from 'https://cdn.jsdelivr.net/npm/@owlbear-rodeo/sdk@3.1.0/+esm';
 
-// 从 URL 解析 tokenId
+// 从 URL 解析 tokenId 或 previewCardId
 const urlParams = new URLSearchParams(window.location.search);
 const tokenId = urlParams.get('tokenId');
+const previewCardId = urlParams.get('previewCardId');
 let characterData = null;
 let isGMAccess = false;
 
-if (!tokenId) {
+if (!tokenId && !previewCardId) {
   document.getElementById('cardContainer').innerHTML = `
     <div style="text-align: center; padding: 40px; color: #e74c3c;">
-      ❌ 错误：未指定 Token ID
+      ❌ 错误：未指定 Token ID 或角色卡 ID
     </div>
   `;
 } else {
   // 初始化 OBR SDK
   OBR.onReady(async () => {
-    // 判断当前用户角色
-    const role = await OBR.player.getRole();
-    isGMAccess = (role === 'GM');
+    try {
+      const role = await OBR.player.getRole();
+      isGMAccess = (role === 'GM');
+    } catch (e) {
+      isGMAccess = true;
+    }
 
     // 加载数据并渲染
     await loadAndRender();
 
-    // 监听场景棋子发生的数据改变，实现多人联机实时同步更新
-    OBR.scene.items.onChange(async (items) => {
-      const token = items.find(item => item.id === tokenId);
-      if (token && token.metadata['com.wow.fu-character/data']) {
-        characterData = token.metadata['com.wow.fu-character/data'];
-        renderCard(characterData);
-      }
-    });
+    if (tokenId) {
+      // 监听场景棋子发生的数据改变，实现多人联机实时同步更新
+      OBR.scene.items.onChange(async (items) => {
+        const token = items.find(item => item.id === tokenId);
+        if (token && token.metadata['com.wow.fu-character/data']) {
+          characterData = token.metadata['com.wow.fu-character/data'];
+          renderCard(characterData);
+        }
+      });
+    }
   });
 }
 
-// 从 OBR 棋子 metadata 中读取数据
+// 从 OBR 棋子 metadata 或本地存储中读取数据
 async function loadAndRender() {
+  if (previewCardId) {
+    try {
+      const raw = localStorage.getItem('cc-fu-data-' + previewCardId);
+      if (raw) {
+        characterData = JSON.parse(raw);
+        renderCard(characterData);
+      } else {
+        throw new Error('该角色卡已从本地删除');
+      }
+    } catch (err) {
+      document.getElementById('cardContainer').innerHTML = `
+        <div style="text-align: center; padding: 40px; color: #e74c3c;">
+          加载预览卡片失败: ${err.message}
+        </div>
+      `;
+    }
+    return;
+  }
+
   try {
     const items = await OBR.scene.items.getItems([tokenId]);
     if (items.length > 0 && items[0].metadata['com.wow.fu-character/data']) {
@@ -239,6 +264,12 @@ async function updateMetadataField(field, value) {
 
   // 更新本地变量
   characterData[targetKey] = value;
+
+  if (previewCardId) {
+    localStorage.setItem('cc-fu-data-' + previewCardId, JSON.stringify(characterData));
+    console.log(`💾 本地角色卡数据已更新: ${targetKey} = ${value}`);
+    return;
+  }
 
   // 更新 OBR Token 元数据并广播给全房间
   await OBR.scene.items.updateItems([tokenId], (items) => {

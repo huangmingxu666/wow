@@ -3,10 +3,24 @@ import OBR from 'https://cdn.jsdelivr.net/npm/@owlbear-rodeo/sdk@3.1.0/+esm';
 const STORAGE_PREFIX = 'cc-fu-data-';
 let isSdkReady = false;
 
+const urlParams = new URLSearchParams(window.location.search);
+const bindTokenId = urlParams.get('bindTokenId');
+let bindTokenName = '';
+
 // 初始化 OBR SDK
-OBR.onReady(() => {
+OBR.onReady(async () => {
   isSdkReady = true;
-  document.getElementById('statusBar').textContent = 'SDK 已就绪';
+  if (bindTokenId) {
+    try {
+      const items = await OBR.scene.items.getItems([bindTokenId]);
+      if (items.length > 0) {
+        bindTokenName = items[0].name || '未知棋子';
+      }
+    } catch (e) {}
+    document.getElementById('statusBar').textContent = `正在为棋子「${bindTokenName}」选择绑定角色卡...`;
+  } else {
+    document.getElementById('statusBar').textContent = 'SDK 已就绪';
+  }
   renderList();
 });
 
@@ -46,7 +60,7 @@ function renderList() {
   list.innerHTML = html;
   document.getElementById('statusBar').textContent = `共 ${cards.length} 张角色卡｜选中 Token 棋子后点击列表可绑定`;
 
-  // 点击列表项进行 Token 绑定
+  // 点击列表项进行 Token 绑定 或 打开预览
   list.querySelectorAll('.list-item').forEach(item => {
     item.addEventListener('click', async (e) => {
       if (e.target.tagName === 'BUTTON') return; // 点击删除按钮不触发绑定
@@ -57,14 +71,19 @@ function renderList() {
         return;
       }
 
-      // 获取当前选中的 Token
-      const selection = await OBR.player.getSelection();
-      if (!selection || selection.length === 0) {
-        alert('请先在枭熊地图上选择一个 Token 棋子，然后再点击此角色卡进行绑定！');
+      // 如果不是绑定模式，点击名字是打开卡片预览
+      if (!bindTokenId) {
+        OBR.popover.open({
+          id: 'fu-card-preview',
+          url: `/wow/full-card.html?previewCardId=${cardId}`,
+          width: 620,
+          height: 600
+        });
         return;
       }
 
-      const tokenId = selection[0];
+      // 绑定模式下：绑定到指定的 bindTokenId
+      const tokenId = bindTokenId;
       const data = JSON.parse(localStorage.getItem(STORAGE_PREFIX + cardId));
       if (!data) return;
 
@@ -108,7 +127,11 @@ function renderList() {
         }
       });
 
-      alert(`✅ 已成功将角色卡「${data.name}」绑定到选中的 Token！\n现在你可以右键该 Token 选择“🃏 打开FU角色卡”查看完整卡片。`);
+      alert(`✅ 已成功将角色卡「${data.name}」绑定到棋子「${bindTokenName}」！`);
+      
+      // 绑定成功后，自动关闭当前选择面板
+      const currentId = await OBR.popover.getCurrentID();
+      OBR.popover.close(currentId);
     });
   });
 }

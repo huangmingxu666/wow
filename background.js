@@ -21,69 +21,31 @@ function getCardList() {
 OBR.onReady(() => {
   console.log('🎯 OBR SDK 已就绪');
 
-  // 1. 右键菜单：绑定角色卡（快捷绑定列表第一张卡）
+  // 1. 右键菜单：绑定角色卡（打开列表选择并进行绑定）
   OBR.contextMenu.create({
     id: 'fu-character-extension/bind-role',
     icons: [{
       icon: '/wow/assets/icon.png',
-      label: '📋 绑定第一个FU角色卡',
+      label: '📋 绑定角色卡',
       filter: {
         every: [{ key: 'type', value: 'IMAGE' }]
       }
     }],
     onClick: async (context) => {
-      const cards = getCardList();
-      if (cards.length === 0) {
-        OBR.notification.show('暂无角色卡，请先在工具栏中导入Excel角色卡');
-        return;
-      }
       const items = await OBR.scene.items.getSelected();
       if (items.length === 0) {
         OBR.notification.show('请选择一个棋子 Token');
         return;
       }
       const token = items[0];
-      const cardId = cards[0].id;
-      const data = JSON.parse(localStorage.getItem(STORAGE_PREFIX + cardId));
-      if (!data) return;
-
-      await OBR.scene.items.updateItems([token.id], (items) => {
-        for (let item of items) {
-          if (item.type === 'IMAGE') {
-            item.metadata['com.wow.fu-character/data'] = {
-              cardId: cardId,
-              name: data.name,
-              level: data.level,
-              hp: data.hp,
-              hpMax: data.hpMax,
-              mp: data.mp,
-              mpMax: data.mpMax,
-              ip: data.ip,
-              ipMax: data.ipMax,
-              dex: data.dex,
-              ins: data.ins,
-              mig: data.mig,
-              wlp: data.wlp,
-              init: data.init,
-              pd: data.pd,
-              md: data.md,
-              weakness: data.weakness,
-              resistance: data.resistance,
-              immunity: data.immunity,
-              absorb: data.absorb,
-              crisisName: data.crisisName,
-              crisisCondition: data.crisisCondition,
-              crisisSlots: data.crisisSlots,
-              crisisCurrent: data.crisisCurrent,
-              crisisMax: data.crisisMax,
-              weapon1: data.weapon1,
-              weapon2: data.weapon2
-            };
-            item.text.plainText = `${data.name}\nHP ${data.hp}/${data.hpMax}`;
-          }
-        }
+      
+      // 打开列表选择弹窗进入“绑定模式”
+      OBR.popover.open({
+        id: 'com.wow.fu-character/popover',
+        url: `/wow/popover.html?bindTokenId=${token.id}`,
+        width: 400,
+        height: 600
       });
-      OBR.notification.show(`已成功绑定角色卡: ${data.name}`);
     }
   });
 
@@ -186,6 +148,34 @@ OBR.onReady(() => {
         }
       });
       OBR.notification.show('已解除角色卡绑定');
+    }
+  });
+
+  // 5. 监听玩家选择：点击绑定好的 Token 自动弹窗显示角色卡
+  let lastSelectedTokenId = '';
+  OBR.player.onChange(async (player) => {
+    const selection = player.selection || [];
+    if (selection.length > 0) {
+      const tokenId = selection[0];
+      if (tokenId !== lastSelectedTokenId) {
+        lastSelectedTokenId = tokenId;
+        try {
+          const items = await OBR.scene.items.getItems([tokenId]);
+          if (items.length > 0) {
+            const item = items[0];
+            if (item.type === 'IMAGE' && item.metadata['com.wow.fu-character/data']) {
+              OBR.popover.open({
+                id: 'fu-card-popover',
+                url: `/wow/full-card.html?tokenId=${item.id}`,
+                width: 620,
+                height: 600
+              });
+            }
+          }
+        } catch (e) {}
+      }
+    } else {
+      lastSelectedTokenId = '';
     }
   });
 
