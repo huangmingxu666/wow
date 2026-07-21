@@ -326,9 +326,10 @@ async function updateMetadataField(field, value) {
         
         // 实时更新 Token 在地图上显示的原生标签文本
         const d = item.metadata['com.wow.fu-character/data'];
-        if (item.text) {
-          item.text.plainText = `${d.name}\nHP ${d.hp}/${d.hpMax}`;
+        if (!item.text) {
+          item.text = { plainText: '', richText: [], style: { fillColor: '#FFFFFF', fillOpacity: 1, strokeColor: '#000000', strokeOpacity: 1, strokeWidth: 0, textAlign: 'CENTER', textAlignVertical: 'BOTTOM', fontSize: 16, fontWeight: 600, lineHeight: 1.2, padding: 4 }, type: 'LABEL', width: 'AUTO', height: 'AUTO' };
         }
+        item.text.plainText = `${d.name}\nHP ${d.hp}/${d.hpMax}`;
       }
     }
   });

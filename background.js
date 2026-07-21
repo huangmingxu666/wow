@@ -43,7 +43,7 @@ OBR.onReady(() => {
       // 打开列表选择弹窗进入“绑定模式”
       OBR.popover.open({
         id: 'com.wow.fu-character/popover',
-        url: `/wow/popover.html?bindTokenId=${token.id}`,
+        url: `${base}/popover.html?bindTokenId=${token.id}`,
         width: 400,
         height: 600
       });
@@ -91,9 +91,11 @@ OBR.onReady(() => {
         for (let item of items) {
           if (item.type === 'IMAGE') {
             item.metadata['com.wow.fu-character/data'] = data;
-            if (item.text) {
-              item.text.plainText = `${data.name}\nHP ${data.hp}/${data.hpMax}`;
+            // 如果 item.text 不存在，先初始化它
+            if (!item.text) {
+              item.text = { plainText: '', richText: [], style: { fillColor: '#FFFFFF', fillOpacity: 1, strokeColor: '#000000', strokeOpacity: 1, strokeWidth: 0, textAlign: 'CENTER', textAlignVertical: 'BOTTOM', fontSize: 16, fontWeight: 600, lineHeight: 1.2, padding: 4 }, type: 'LABEL', width: 'AUTO', height: 'AUTO' };
             }
+            item.text.plainText = `${data.name}\nHP ${data.hp}/${data.hpMax}`;
           }
         }
       });
@@ -119,7 +121,7 @@ OBR.onReady(() => {
       
       OBR.popover.open({
         id: 'fu-card-popover',
-        url: `/wow/full-card.html?tokenId=${token.id}`,
+        url: `${base}/full-card.html?tokenId=${token.id}`,
         width: 620,
         height: 600
       });
@@ -171,7 +173,7 @@ OBR.onReady(() => {
             if (item.type === 'IMAGE' && item.metadata['com.wow.fu-character/data']) {
               OBR.popover.open({
                 id: 'fu-card-popover',
-                url: `/wow/full-card.html?tokenId=${item.id}`,
+                url: `${base}/full-card.html?tokenId=${item.id}`,
                 width: 620,
                 height: 600
               });

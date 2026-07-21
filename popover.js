@@ -80,7 +80,7 @@ function renderList() {
       if (!bindTokenId) {
         OBR.popover.open({
           id: 'fu-card-preview',
-          url: `/wow/full-card.html?previewCardId=${cardId}`,
+          url: `${base}/full-card.html?previewCardId=${cardId}`,
           width: 620,
           height: 600
         });
@@ -127,9 +127,10 @@ function renderList() {
             };
             
             // 自动更新 Token 的原生 Label（在棋子下方显示血量）
-            if (item.text) {
-              item.text.plainText = `${data.name}\nHP ${data.hp}/${data.hpMax}`;
+            if (!item.text) {
+              item.text = { plainText: '', richText: [], style: { fillColor: '#FFFFFF', fillOpacity: 1, strokeColor: '#000000', strokeOpacity: 1, strokeWidth: 0, textAlign: 'CENTER', textAlignVertical: 'BOTTOM', fontSize: 16, fontWeight: 600, lineHeight: 1.2, padding: 4 }, type: 'LABEL', width: 'AUTO', height: 'AUTO' };
             }
+            item.text.plainText = `${data.name}\nHP ${data.hp}/${data.hpMax}`;
           }
         }
       });
