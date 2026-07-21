@@ -78,45 +78,8 @@
 
   <script>
     // ============================================================
-    // 1. 注入功能代码到枭熊2主页面
-    // ============================================================
-
-    function injectToMainPage() {
-      console.log('📦 正在获取注入脚本...');
-
-      fetch('https://erial8823-star.github.io/wow/src/inject.js')
-        .then(response => response.text())
-        .then(code => {
-          console.log('📝 获取到代码，长度:', code.length);
-          console.log('📦 正在注入到主页面...');
-
-          try {
-            const parentWindow = window.parent;
-            const func = new parentWindow.Function(code);
-            func();
-            console.log('✅ 注入成功！');
-            window.__fu_injected = true;
-          } catch (err) {
-            console.error('❌ 注入失败:', err);
-            try {
-              window.parent.eval(code);
-              console.log('✅ 使用 eval 注入成功');
-              window.__fu_injected = true;
-            } catch (e2) {
-              console.error('❌ eval 注入也失败:', e2);
-            }
-          }
-        })
-        .catch(err => {
-          console.error('❌ 获取注入脚本失败:', err);
-        });
-    }
-
-    // 打开 popover 时自动注入
-    injectToMainPage();
-
-    // ============================================================
-    // 2. 界面逻辑（显示角色卡列表）
+    // 轻量级 popover - 只做界面显示
+    // 所有功能由 background.js 提供
     // ============================================================
 
     const STORAGE_PREFIX = 'cc-fu-data-';
@@ -153,7 +116,7 @@
       list.querySelectorAll('.list-item').forEach(item => {
         item.addEventListener('click', () => {
           const cardId = item.dataset.id;
-          // 发送消息给主页面
+          // 发送消息到主页面（由 background.js 监听）
           window.parent.postMessage({
             type: 'fu-open-card',
             cardId: cardId
