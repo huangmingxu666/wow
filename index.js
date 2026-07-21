@@ -1,4 +1,4 @@
-// index.js - 扩展主入口（回退版）
+// index.js - 扩展主入口（枭熊2集成版）
 
 // ============================================================
 // 1. 导入样式文件
@@ -25,6 +25,7 @@ console.log('🎉 FU角色卡扩展加载成功了！');
 // ============================================================
 // 4. 测试函数（仅在开发环境可用）
 // ============================================================
+// 检测是否在 test.html 中运行
 const isTestEnvironment = window.location.pathname.includes('test.html') || 
                           document.querySelector('#fileInput') !== null;
 
@@ -116,6 +117,8 @@ if (isTestEnvironment) {
     console.log('📋 角色卡管理界面已打开');
   };
 
+  // TokenBinder 测试
+  let __testBinder = null;
   window.__tokenBinder = null;
 
   window.testCreateToken = (cardId) => {
@@ -307,62 +310,9 @@ if (isOwlbearEnvironment) {
   console.log('🦉 检测到枭熊2环境，启动集成模块...');
   const integration = new OwlbearIntegration();
   integration.init();
+  // 暴露到全局以便调试
   window.__fuIntegration = integration;
 } else if (!isTestEnvironment) {
   console.log('💡 未检测到枭熊2环境，扩展处于待机状态');
   console.log('💡 在枭熊2中加载此扩展将自动激活');
 }
-
-// ============================================================
-// 6. 监听 popover 窗口发来的消息
-// ============================================================
-window.addEventListener('message', function(event) {
-  const message = event.data;
-  console.log('📨 收到消息:', message);
-
-  if (message.type === 'fu-import-excel') {
-    console.log('📂 触发导入Excel');
-    let fileInput = document.getElementById('fu-file-input');
-    if (!fileInput) {
-      fileInput = document.createElement('input');
-      fileInput.type = 'file';
-      fileInput.accept = '.xlsx,.xls';
-      fileInput.id = 'fu-file-input';
-      fileInput.style.display = 'none';
-      fileInput.addEventListener('change', async function(e) {
-        const file = e.target.files[0];
-        if (file) {
-          console.log('📂 选择文件:', file.name);
-          if (typeof window.testParseExcel === 'function') {
-            const data = await window.testParseExcel(file);
-            if (data) {
-              const name = data.name || `card-${Date.now()}`;
-              window.testSaveData(name, data);
-            }
-          } else {
-            alert('testParseExcel 函数未加载，请刷新页面后重试');
-          }
-        }
-        this.value = '';
-      });
-      document.body.appendChild(fileInput);
-    }
-    fileInput.click();
-  }
-
-  if (message.type === 'fu-open-card') {
-    const cardId = message.cardId;
-    console.log('🃏 打开卡片:', cardId);
-    if (typeof window.testShowCard === 'function') {
-      window.testShowCard(cardId);
-    } else {
-      const data = DataManager.load(cardId);
-      if (data) {
-        const card = new FullCard(cardId, data, () => {});
-        card.open();
-      }
-    }
-  }
-});
-
-console.log('✅ 消息监听器已启动');
