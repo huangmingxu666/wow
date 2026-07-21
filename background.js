@@ -28,7 +28,7 @@ OBR.onReady(() => {
       icon: '/wow/assets/icon.png',
       label: '📋 绑定第一个FU角色卡',
       filter: {
-        every: [{ key: 'type', value: 'TOKEN' }]
+        every: [{ key: 'type', value: 'IMAGE' }]
       }
     }],
     onClick: async (context) => {
@@ -49,7 +49,7 @@ OBR.onReady(() => {
 
       await OBR.scene.items.updateItems([token.id], (items) => {
         for (let item of items) {
-          if (item.type === 'TOKEN') {
+          if (item.type === 'IMAGE') {
             item.metadata['com.wow.fu-character/data'] = {
               cardId: cardId,
               name: data.name,
@@ -94,7 +94,7 @@ OBR.onReady(() => {
       icon: '/wow/assets/icon.png',
       label: '❤️ 绑定FU默认血条',
       filter: {
-        every: [{ key: 'type', value: 'TOKEN' }]
+        every: [{ key: 'type', value: 'IMAGE' }]
       }
     }],
     onClick: async (context) => {
@@ -126,7 +126,7 @@ OBR.onReady(() => {
 
       await OBR.scene.items.updateItems([token.id], (items) => {
         for (let item of items) {
-          if (item.type === 'TOKEN') {
+          if (item.type === 'IMAGE') {
             item.metadata['com.wow.fu-character/data'] = data;
             item.text.plainText = `${data.name}\nHP ${data.hp}/${data.hpMax}`;
           }
@@ -143,7 +143,7 @@ OBR.onReady(() => {
       icon: '/wow/assets/icon.png',
       label: '🃏 打开FU角色卡',
       filter: {
-        every: [{ key: 'type', value: 'TOKEN' }],
+        every: [{ key: 'type', value: 'IMAGE' }],
         some: [{ key: ['metadata', 'com.wow.fu-character/data'], operator: 'EXISTS' }]
       }
     }],
@@ -168,7 +168,7 @@ OBR.onReady(() => {
       icon: '/wow/assets/icon.png',
       label: '🗑️ 解除绑定',
       filter: {
-        every: [{ key: 'type', value: 'TOKEN' }],
+        every: [{ key: 'type', value: 'IMAGE' }],
         some: [{ key: ['metadata', 'com.wow.fu-character/data'], operator: 'EXISTS' }]
       }
     }],
@@ -179,7 +179,7 @@ OBR.onReady(() => {
 
       await OBR.scene.items.updateItems([token.id], (items) => {
         for (let item of items) {
-          if (item.type === 'TOKEN') {
+          if (item.type === 'IMAGE') {
             delete item.metadata['com.wow.fu-character/data'];
             item.text.plainText = item.name || '';
           }

@@ -243,7 +243,7 @@ async function updateMetadataField(field, value) {
   // 更新 OBR Token 元数据并广播给全房间
   await OBR.scene.items.updateItems([tokenId], (items) => {
     for (let item of items) {
-      if (item.type === 'TOKEN' && item.metadata['com.wow.fu-character/data']) {
+      if (item.type === 'IMAGE' && item.metadata['com.wow.fu-character/data']) {
         item.metadata['com.wow.fu-character/data'][targetKey] = value;
         
         // 实时更新 Token 在地图上显示的原生标签文本

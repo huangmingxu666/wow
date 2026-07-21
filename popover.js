@@ -71,7 +71,7 @@ function renderList() {
       // 将属性写入 Token 元数据 (Item Metadata)
       await OBR.scene.items.updateItems([tokenId], (items) => {
         for (let item of items) {
-          if (item.type === 'TOKEN') {
+          if (item.type === 'IMAGE') {
             item.metadata['com.wow.fu-character/data'] = {
               cardId: cardId,
               name: data.name,
