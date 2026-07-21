@@ -5,8 +5,6 @@
   <title>FU角色卡</title>
   <!-- 引入 SheetJS 库 -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <!-- 引入 Owlbear Rodeo SDK -->
-  <script src="https://unpkg.com/@owlbear-rodeo/sdk@3.1.0"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -85,7 +83,10 @@
   </div>
   <div class="footer" id="statusBar">正在初始化 SDK...</div>
 
-  <script>
+  <!-- 使用 ES module 形式加载脚本并引入 OBR SDK -->
+  <script type="module">
+    import OBR from 'https://cdn.jsdelivr.net/npm/@owlbear-rodeo/sdk@3.1.0/+esm';
+
     const STORAGE_PREFIX = 'cc-fu-data-';
     let isSdkReady = false;
 
@@ -206,6 +207,8 @@
       localStorage.removeItem(STORAGE_PREFIX + cardId);
       renderList();
     }
+    // 将删除函数挂载到 window 全局，确保 HTML 中的 onclick 能够正常触发
+    window.deleteCard = deleteCard;
 
     // 绑定导入文件按钮
     const importBtn = document.getElementById('importBtn');

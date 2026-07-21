@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <title>FU角色卡</title>
   <link rel="stylesheet" href="./styles/main.css">
-  <!-- 引入 Owlbear Rodeo SDK -->
-  <script src="https://unpkg.com/@owlbear-rodeo/sdk@3.1.0"></script>
   <style>
     body {
       background: #1a1a2e;
@@ -39,7 +37,9 @@
     </div>
   </div>
 
-  <script>
+  <script type="module">
+    import OBR from 'https://cdn.jsdelivr.net/npm/@owlbear-rodeo/sdk@3.1.0/+esm';
+
     // 从 URL 解析 tokenId
     const urlParams = new URLSearchParams(window.location.search);
     const tokenId = urlParams.get('tokenId');
