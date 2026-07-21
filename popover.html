@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>FU角色卡</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #1a1a2e;
+      color: #eee;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      width: 380px;
+      height: 500px;
+      overflow: hidden;
+    }
+    #app {
+      padding: 16px;
+      height: 100%;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .header h2 {
+      color: #f0c060;
+      margin: 0;
+      font-size: 16px;
+    }
+    .btn-import {
+      background: #2d7d46;
+      color: #fff;
+      border: none;
+      padding: 4px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .btn-import:hover {
+      background: #3da05a;
+    }
+    .list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .list-item {
+      padding: 8px 12px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.15s;
+      border: 1px solid transparent;
+      font-size: 13px;
+      color: #ddd;
+    }
+    .list-item:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: #3a3a5a;
+    }
+    .list-item.active {
+      background: rgba(240,192,96,0.12);
+      border-color: #f0c060;
+    }
+    .list-item .id {
+      color: #666;
+      font-size: 11px;
+      margin-left: 8px;
+    }
+    .empty {
+      color: #666;
+      text-align: center;
+      padding: 40px 0;
+      font-size: 14px;
+    }
+    .footer {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #2a2a44;
+      font-size: 11px;
+      color: #666;
+      text-align: center;
+    }
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="header">
+      <h2>📋 FU角色卡</h2>
+      <button class="btn-import" id="importBtn">📄 导入Excel</button>
+    </div>
+    <div class="list" id="cardList">
+      <div class="empty">暂无角色卡<br>点击"导入Excel"上传</div>
+    </div>
+    <div class="footer" id="statusBar">就绪</div>
+  </div>
+
+  <script>
+    // 这个页面运行在枭熊2的弹出窗口中
+    // 需要与主页面通信
+
+    const STORAGE_PREFIX = 'cc-fu-data-';
+
+    function getCardList() {
+      const keys = Object.keys(localStorage);
+      const ourKeys = keys.filter(k => k.startsWith(STORAGE_PREFIX));
+      const cards = ourKeys.map(key => {
+        const id = key.slice(STORAGE_PREFIX.length);
+        try {
+          const data = JSON.parse(localStorage.getItem(key));
+          return { id, name: data.name || '未命名' };
+        } catch (e) {
+          return { id, name: '未知' };
+        }
+      });
+      return cards;
+    }
+
+    function renderList() {
+      const list = document.getElementById('cardList');
+      const cards = getCardList();
+      if (cards.length === 0) {
+        list.innerHTML = `<div class="empty">暂无角色卡<br>点击"导入Excel"上传</div>`;
+        return;
+      }
+      let html = '';
+      cards.forEach(card => {
+        html += `
+          <div class="list-item" data-id="${card.id}">
+            ${card.name}
+            <span class="id">${card.id}</span>
+          </div>
+        `;
+      });
+      list.innerHTML = html;
+
+      // 点击卡片 → 打开全屏大卡片
+      list.querySelectorAll('.list-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const cardId = item.dataset.id;
+          // 发送消息到主页面，打开卡片
+          window.parent.postMessage({
+            type: 'fu-open-card',
+            cardId: cardId
+          }, '*');
+          // 关闭弹出窗口（可选）
+          // window.close();
+        });
+      });
+    }
+
+    // 导入按钮
+    document.getElementById('importBtn').addEventListener('click', () => {
+      // 通知主页面触发文件选择
+      window.parent.postMessage({
+        type: 'fu-import-excel'
+      }, '*');
+    });
+
+    // 监听 storage 变化，实时刷新列表
+    window.addEventListener('storage', (e) => {
+      if (e.key && e.key.startsWith(STORAGE_PREFIX)) {
+        renderList();
+      }
+    });
+
+    // 初始渲染
+    renderList();
+
+    // 更新状态
+    document.getElementById('statusBar').textContent = `共 ${getCardList().length} 张角色卡`;
+  </script>
+</body>
+</html>
