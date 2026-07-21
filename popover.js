@@ -1,4 +1,4 @@
-// popover.js - popover界面的交互逻辑
+// popover.js
 (function() {
   const STORAGE_PREFIX = 'cc-fu-data-';
 
@@ -41,13 +41,10 @@
           type: 'fu-open-card',
           cardId: cardId
         }, '*');
-        // 可选：关闭popover
-        // window.close();
       });
     });
   }
 
-  // 导入按钮
   const importBtn = document.getElementById('importBtn');
   if (importBtn) {
     importBtn.addEventListener('click', function() {
@@ -55,13 +52,11 @@
     });
   }
 
-  // 监听 storage 变化刷新列表
   window.addEventListener('storage', function(e) {
     if (e.key && e.key.startsWith(STORAGE_PREFIX)) {
       renderList();
     }
   });
 
-  // 初始渲染
   renderList();
 })();

@@ -4,11 +4,11 @@
   "manifest_version": 1,
   "author": "Cloud",
   "description": "支持Excel导入的FU规则角色卡，含全屏卡片与Token悬浮气泡",
-  "icon": "./assets/icon.png",
+  "icon": "assets/icon.png",
   "action": {
     "title": "FU角色卡",
-    "icon": "./assets/icon.png",
-    "popover": "./popover.html",
+    "icon": "assets/icon.png",
+    "popover": "popover.html",
     "height": 600,
     "width": 400
   }
