@@ -316,45 +316,63 @@ if (isOwlbearEnvironment) {
   console.log('💡 未检测到枭熊2环境，扩展处于待机状态');
   console.log('💡 在枭熊2中加载此扩展将自动激活');
 }
-// 监听来自 popover 窗口的消息
+
+// ============================================================
+// 6. 监听 popover 窗口发来的消息（修复语法错误）
+// ============================================================
 window.addEventListener('message', function(event) {
-  // 为了安全，可以在这里验证消息来源
+  // 安全验证：只接受来自我们自己 popover 的消息
   // if (event.origin !== 'https://erial8823-star.github.io') return;
 
   const message = event.data;
-  console.log('收到 popover 消息:', message);
+  console.log('📨 收到消息:', message);
 
-  // 处理“导入Excel”请求
+  // 处理：导入Excel
   if (message.type === 'fu-import-excel') {
-    // 触发文件选择
-    const fileInput = document.getElementById('fu-file-input');
-    if (fileInput) {
-      fileInput.click();
-    } else {
-      // 如果页面上还没有文件输入框，动态创建一个
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = '.xlsx,.xls';
-      input.id = 'fu-file-input';
-      input.style.display = 'none';
-      input.addEventListener('change', function(e) {
+    console.log('📂 触发导入Excel');
+    let fileInput = document.getElementById('fu-file-input');
+    if (!fileInput) {
+      fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = '.xlsx,.xls';
+      fileInput.id = 'fu-file-input';
+      fileInput.style.display = 'none';
+      fileInput.addEventListener('change', async function(e) {
         const file = e.target.files[0];
         if (file) {
-          // 调用你已有的 Excel 解析函数
-          window.testParseExcel && window.testParseExcel(file);
+          console.log('📂 选择文件:', file.name);
+          if (typeof window.testParseExcel === 'function') {
+            const data = await window.testParseExcel(file);
+            if (data) {
+              const name = data.name || `card-${Date.now()}`;
+              window.testSaveData(name, data);
+            }
+          } else {
+            alert('testParseExcel 函数未加载，请刷新页面后重试');
+          }
         }
-        this.value = ''; // 重置，以便重复选择同一文件
+        this.value = '';
       });
-      document.body.appendChild(input);
-      input.click();
+      document.body.appendChild(fileInput);
     }
+    fileInput.click();
   }
 
-  // 处理“打开卡片”请求
+  // 处理：打开卡片
   if (message.type === 'fu-open-card') {
     const cardId = message.cardId;
-    if (window.testShowCard) {
+    console.log('🃏 打开卡片:', cardId);
+    if (typeof window.testShowCard === 'function') {
       window.testShowCard(cardId);
+    } else {
+      // 直接加载卡片（修复语法错误：先检查 FullCard 是否可用）
+      const data = DataManager.load(cardId);
+      if (data && typeof FullCard !== 'undefined') {
+        const card = new FullCard(cardId, data, () => {});
+        card.open();
+      }
     }
   }
 });
+
+console.log('✅ 消息监听器已启动');

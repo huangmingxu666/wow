@@ -59,4 +59,5 @@
   });
 
   renderList();
+  console.log('✅ popover.js 已加载');
 })();
