@@ -136,8 +136,7 @@ function renderList() {
       alert(`✅ 已成功将角色卡「${data.name}」绑定到棋子「${bindTokenName}」！`);
       
       // 绑定成功后，自动关闭当前选择面板
-      const currentId = await OBR.popover.getCurrentID();
-      OBR.popover.close(currentId);
+      OBR.popover.close('com.wow.fu-character/popover');
     });
   });
 }

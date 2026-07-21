@@ -204,8 +204,8 @@ function renderCard(d) {
   const closeBtn = document.getElementById('fuCloseBtn');
   if (closeBtn) {
     closeBtn.addEventListener('click', async () => {
-      const currentId = await OBR.popover.getCurrentID();
-      OBR.popover.close(currentId);
+      OBR.popover.close('fu-card-popover');
+      OBR.popover.close('fu-card-preview');
     });
   }
 
