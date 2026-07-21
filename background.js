@@ -26,7 +26,7 @@ OBR.onReady(() => {
   OBR.contextMenu.create({
     id: 'fu-character-extension/bind-role',
     icons: [{
-      icon: `${base}/assets/icon.png`,
+      icon: 'assets/icon.png',
       label: '📋 绑定角色卡',
       filter: {
         every: [{ key: 'type', value: 'IMAGE' }]
@@ -43,7 +43,7 @@ OBR.onReady(() => {
       // 打开列表选择弹窗进入“绑定模式”
       OBR.popover.open({
         id: 'com.wow.fu-character/popover',
-        url: `${base}/popover.html?bindTokenId=${token.id}`,
+        url: `popover.html?bindTokenId=${token.id}`,
         width: 400,
         height: 600
       });
@@ -54,7 +54,7 @@ OBR.onReady(() => {
   OBR.contextMenu.create({
     id: 'fu-character-extension/bind-hpbar',
     icons: [{
-      icon: `${base}/assets/icon.png`,
+      icon: 'assets/icon.png',
       label: '❤️ 绑定FU默认血条',
       filter: {
         every: [{ key: 'type', value: 'IMAGE' }]
@@ -105,7 +105,7 @@ OBR.onReady(() => {
   OBR.contextMenu.create({
     id: 'fu-character-extension/open-card',
     icons: [{
-      icon: `${base}/assets/icon.png`,
+      icon: 'assets/icon.png',
       label: '🃏 打开FU角色卡',
       filter: {
         every: [{ key: 'type', value: 'IMAGE' }],
@@ -119,7 +119,7 @@ OBR.onReady(() => {
       
       OBR.popover.open({
         id: 'fu-card-popover',
-        url: `${base}/full-card.html?tokenId=${token.id}`,
+        url: `full-card.html?tokenId=${token.id}`,
         width: 620,
         height: 600
       });
@@ -130,7 +130,7 @@ OBR.onReady(() => {
   OBR.contextMenu.create({
     id: 'fu-character-extension/unbind',
     icons: [{
-      icon: `${base}/assets/icon.png`,
+      icon: 'assets/icon.png',
       label: '🗑️ 解除绑定',
       filter: {
         every: [{ key: 'type', value: 'IMAGE' }],
@@ -171,7 +171,7 @@ OBR.onReady(() => {
             if (item.type === 'IMAGE' && item.metadata['com.wow.fu-character/data']) {
               OBR.popover.open({
                 id: 'fu-card-popover',
-                url: `${base}/full-card.html?tokenId=${item.id}`,
+                url: `full-card.html?tokenId=${item.id}`,
                 width: 620,
                 height: 600
               });
